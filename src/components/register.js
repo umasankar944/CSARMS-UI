@@ -1,5 +1,14 @@
 import React, { useState, useContext } from 'react';
-import { Container, TextField, Button, Typography, Box, IconButton, GlobalStyles, Grid } from '@mui/material';
+import {
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  IconButton,
+  GlobalStyles,
+  Grid,
+} from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
@@ -11,9 +20,15 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ username: '', password: '', email: '' });
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+    email: '',
+    firstname: '',
+    lastname: '',
+    phone: '',
+  });
   const { setAuth, handleAccessToken } = useContext(AppContext);
-  const [error, setError] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -31,13 +46,12 @@ const Register = () => {
       const response = await userRegister(formData);
       if (response.status === 200) {
         window.sessionStorage.setItem('token', response.token);
-        await handleAccessToken(); // Fetch user details after setting the token
+        await handleAccessToken();
         setAuth(true);
         toast.success('Registration successful!');
-        navigate("/login");
+        navigate('/login');
       } else {
         toast.error('Registration failed. Please check your details and try again.');
-        setError(true);
       }
     } catch (error) {
       toast.error('Registration failed. Please check your details and try again.');
@@ -55,17 +69,17 @@ const Register = () => {
       <GlobalStyles
         styles={{
           html: { backgroundColor: '#202227' },
-          body: { backgroundColor: '#202227', margin: 0, padding: 0, minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' },
+          body: { backgroundColor: '#202227', margin: 0, padding: 0, minHeight: '100vh' },
         }}
       />
-      <Container 
-        maxWidth="false" 
-        disableGutters 
-        sx={{ 
-          minHeight: '100vh', 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center'
+      <Container
+        maxWidth="false"
+        disableGutters
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
       >
         <IconButton
@@ -92,36 +106,37 @@ const Register = () => {
           }}
         >
           <Typography variant="h4" component="h1" gutterBottom>
-            Welcome to CSARMS ⏰
+            Register to CSARMS ⏰
           </Typography>
 
           <form onSubmit={handleRegister} style={{ width: '100%' }}>
-            <Grid container justifyContent="center">
+            <Grid container justifyContent="center" spacing={2}>
               <Grid item xs={12} sm={8}>
                 <TextField
                   variant="outlined"
                   margin="normal"
                   fullWidth
-                  label="User Name"
-                  name="username"
+                  label="First Name"
+                  name="firstname"
                   type="text"
-                  value={formData.username}
+                  value={formData.firstname}
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#8692A6' } }}
                   InputProps={{ style: { color: '#8692A6' } }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#8692A6',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: '#8692A6',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#8692A6',
-                      },
-                    },
-                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={8}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  fullWidth
+                  label="Last Name"
+                  name="lastname"
+                  type="text"
+                  value={formData.lastname}
+                  onChange={handleChange}
+                  InputLabelProps={{ style: { color: '#8692A6' } }}
+                  InputProps={{ style: { color: '#8692A6' } }}
                 />
               </Grid>
               <Grid item xs={12} sm={8}>
@@ -136,19 +151,34 @@ const Register = () => {
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#8692A6' } }}
                   InputProps={{ style: { color: '#8692A6' } }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#8692A6',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: '#8692A6',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#8692A6',
-                      },
-                    },
-                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={8}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  fullWidth
+                  label="Phone"
+                  name="phone"
+                  type="text"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  InputLabelProps={{ style: { color: '#8692A6' } }}
+                  InputProps={{ style: { color: '#8692A6' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={8}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  fullWidth
+                  label="User Name"
+                  name="username"
+                  type="text"
+                  value={formData.username}
+                  onChange={handleChange}
+                  InputLabelProps={{ style: { color: '#8692A6' } }}
+                  InputProps={{ style: { color: '#8692A6' } }}
                 />
               </Grid>
               <Grid item xs={12} sm={8}>
@@ -163,29 +193,10 @@ const Register = () => {
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#8692A6' } }}
                   InputProps={{ style: { color: '#fff' } }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#8692A6',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: '#8692A6',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#8692A6',
-                      },
-                    },
-                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={8}>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  sx={{ mt: 3, mb: 2 }}
-                >
+                <Button type="submit" fullWidth variant="contained" color="primary" sx={{ mt: 3, mb: 2 }}>
                   Register
                 </Button>
               </Grid>
