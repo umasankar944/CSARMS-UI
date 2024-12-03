@@ -1,92 +1,136 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import "./categories.css";
-import { FaEdit } from "react-icons/fa";
-import { FaTrash } from "react-icons/fa";
-
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { ToastContainer, toast } from 'react-toastify';
 
 function Categories() {
-  const [editIndex,setEditIndex]=useState(-1);
+  const [editIndex, setEditIndex] = useState(-1);
   const [editBtn, setEditBtnState] = useState(false);
-  const [edit, setEdit] = useState("");
-  const [task,setTask]=useState("");
-  const [tasks,setTasks] = useState([]);
- 
-  const changeStateOfEdit = (value) => {
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [categoryName, setCategoryName] = useState("");
+  const [description, setDescription] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [showCreateModal, setShowCreateModal] = useState(false); 
+  const [showEditModal, setShowEditModal] = useState(false);
 
-    console.log(value);
-    setEditIndex(value);
-    setEdit(tasks[value]);
-    setEditBtnState(true);
-  }
-  const editBtnHandlde =()=>{
-    console.log(editIndex);
-    const newtodo=[...tasks];
-    newtodo[editIndex]=edit;
-    console.log(newtodo);
-    setTasks(newtodo);
-    setEditBtnState(false);
-  }
-  const  addtask=e=>{
-    setEditBtnState(false);
+  const changeStateOfEdit = (index) => {
+    setEditIndex(index);
+    setEditName(categories[index].name);
+    setEditDescription(categories[index].description);
+    setShowEditModal(true);
+  };
+
+  const editBtnHandle = () => {
+    const updatedCategories = [...categories];
+    updatedCategories[editIndex] = { name: editName, description: editDescription };
+    setCategories(updatedCategories);
+    setShowEditModal(false);
+    toast.success('Category Edited successfully');
+  };
+
+  const addCategory = (e) => {
     e.preventDefault();
-    if (task===''){
-      alert("task is empty fill the task")
+    if (categoryName === '' || description === '') {
+      alert("Please fill in both category name and description");
+    } else {
+      const newCategory = { name: categoryName, description };
+      setCategories([...categories, newCategory]);
+      setCategoryName("");
+      setDescription("");
+      setShowCreateModal(false);
     }
-    else{
-      const newtodo=[...tasks,task];
-      setTasks(newtodo); 
-      setTask("");
-    }
-    
-    
-  }
-  const deleteTask=(val)=>{
+    toast.success('Category Created successfully');
+  };
+
+  const deleteCategory = (index) => {
     setEditBtnState(false);
-     const newtodo=tasks.filter((task,index)=>index!==val);
-     setTasks(newtodo);
-  }
-  // console.log(tasks);
+    const newCategories = categories.filter((_, i) => i !== index);
+    setCategories(newCategories);
+    toast.error('Category Deleted successfully');
+  };
+
+  const toggleCreateModal = () => setShowCreateModal(!showCreateModal); 
+  const toggleEditModal = () => setShowEditModal(!showEditModal);
+
   return (
     <div className="App">
-      <div className="todolist-box">
-        <h1>Get things Done !</h1>
-        <div className="add-item">
-          <input
-            placeholder="what is the task today!"
-            className="input-box"
-            value={task}
-            onChange={(e)=>setTask(e.target.value)}
-          ></input>
-          <button className="add-btn"type="submit" onClick={addtask}>Add item</button>
-        </div>
-        {editBtn ? (
-          <>
-            <div className="edit-item">
-              <input className="input-box" placeholder="what is the task today!" value={edit} onChange={(e)=>setEdit(e.target.value)}></input>
-              <button className="add-btn" type="submit" onClick={editBtnHandlde}>Edit item</button>
+      <div className="item-box">
+        <h1>Get things Done!</h1>
+        <button className="btn" onClick={toggleCreateModal}>Create New Category</button>
+
+        {showCreateModal && (
+          <div className="modal">
+            <div className="modal-content">
+              <span className="close" onClick={toggleCreateModal}>&times;</span>
+              <h2>Create New Category</h2>
+              <div>
+              <input
+                placeholder="Category Name"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                className="box"
+              />
+              </div>
+              <div>
+              <input
+                placeholder="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="box"
+              />
+              </div>
+              <button onClick={addCategory} className="btn">Create Category</button>
             </div>
-          </>
+          </div>
+        )}
+        {showEditModal && ( <div className="modal"> 
+          <div className="modal-content"> 
+            <span className="close" onClick={toggleEditModal}>&times;</span> 
+            <h2>Edit Category</h2> 
+            <div className="input-group"> 
+              <input placeholder="Edit category name" value={editName} onChange={(e) => setEditName(e.target.value)} className="box" /> 
+            </div> 
+            <div className="input-group"> 
+              <input placeholder="Edit description" value={editDescription} onChange={(e) => setEditDescription(e.target.value)} className="box" /> 
+            </div> 
+            <button onClick={editBtnHandle} className="btn">Edit Category</button> 
+          </div> 
+        </div> )}
+        {categories.length === 0 ? (
+          <p>Your category list is empty, please add categories using the Create New Category button.</p>
         ) : (
-          <div></div>
+          <table className="categories-table">
+            <thead>
+              <tr>
+                <th>Category Name</th>
+                <th>Description</th>
+                <th>View Tasks</th>
+                <th>Edit</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.map((category, index) => (
+                <tr key={index}>
+                  <td>{category.name}</td>
+                  <td>{category.description}</td>
+                  <td><button>View Tasks</button></td>
+                  <td><button onClick={() => changeStateOfEdit(index)}><FaEdit /></button></td>
+                  <td><button onClick={() => deleteCategory(index)}><FaTrash /></button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
 
-        {tasks.map((value) => {
-          return (
-            <div key={value}>
-              <div className="item">
-                <div className="item-text">{value}</div>
-                <div className="icons">
-                  <span onClick={() => changeStateOfEdit(tasks.indexOf(value))}>
-                    <FaEdit />
-                  </span>
-                  <span onClick={()=>deleteTask(tasks.indexOf(value))}>
-                    <FaTrash />
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {editBtn && (
+          <div className="edit-item">
+            <input className="input-box" placeholder="Edit category name" value={editName} onChange={(e) => setEditName(e.target.value)} />
+            <input className="input-box" placeholder="Edit description" value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
+            <button className="add-btn" onClick={editBtnHandle}>Edit item</button>
+          </div>
+        )}
       </div>
     </div>
   );
