@@ -4,6 +4,8 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@mui/material";
 
 function Categories() {
   const [editIndex, setEditIndex] = useState(-1);
@@ -14,7 +16,7 @@ function Categories() {
   const [categories, setCategories] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-
+  const [viewCatId,setViewCatId]= useState("");
   // Fetch categories from the backend
   const fetchCategories = async () => {
     try {
@@ -98,7 +100,11 @@ function Categories() {
       console.error(error);
     }
   };
-
+  const Navigate = useNavigate();
+ const viewTasks=(cat)=>{
+      // setViewCatId(cat);
+      Navigate(`/tasks/${cat}`)
+ }
   return (
     <div className="App">
       <ToastContainer />
@@ -168,6 +174,7 @@ function Categories() {
               <tr>
                 <th>Category Name</th>
                 <th>Description</th>
+                <th>View Tasks</th>
                 <th>Edit</th>
                 <th>Delete</th>
               </tr>
@@ -177,6 +184,12 @@ function Categories() {
                 <tr key={index}>
                   <td>{category.CATEGORYNAME}</td>
                   <td>{category.CATEGORYDESCRIPTION}</td>
+                  <td>
+
+    <Button onClick={()=>viewTasks(category.CATEGORYID)}>View Tasks</Button>
+
+</td>
+
                   <td>
                     <button onClick={() => changeStateOfEdit(index)}>
                       <FaEdit />

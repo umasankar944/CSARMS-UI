@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import "./tasks.css";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { TextField, FormControl, InputLabel, MenuItem, Select, Button } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-
+import axios from "axios";
+import { useParams } from "react-router-dom";
+const API_URL = "http://localhost:5000";
 function Tasks() {
   const [editIndex, setEditIndex] = useState(-1);
   const [editBtn, setEditBtnState] = useState(false);
@@ -21,51 +23,95 @@ function Tasks() {
   const [tasks, setTasks] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const { cat } = useParams();
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/tasks/${cat}`);
+      setTasks(response.data);
+    } catch (error) {
+      toast.error("Failed to fetch tasks.");
+    }
+  };
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  
 
   const changeStateOfEdit = (index) => {
     setEditIndex(index);
-    setEditName(tasks[index].name);
-    setEditDescription(tasks[index].description);
-    setEditSchedule(new Date(tasks[index].schedule));
-    setEditNotification(tasks[index].notification);
+    setEditName(tasks[index].TASK_NAME);
+    setEditDescription(tasks[index].TASK_DESCRIPTION);
+    setEditSchedule(new Date(tasks[index].TASK_SCHEDULE));
+    setEditNotification(tasks[index].NOTIFICATION);
     setShowEditModal(true);
   };
 
-  const editBtnHandle = () => {
-    const updatedTasks = [...tasks];
-    updatedTasks[editIndex] = { name: editName, description: editDescription, schedule: taskSchedule.toISOString(), notification: editNotification };
-    setTasks(updatedTasks);
-    setShowEditModal(false);
-    toast.success('Task Edited successfully');
+  const formatDateForOracle = (date) => {
+    const pad = (n) => (n < 10 ? '0' + n : n);
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   };
 
-  const addTask = (e) => {
+  const addTask = async (e) => {
     e.preventDefault();
-    if (taskName === '' || description === '' || !taskSchedule || notification === '' ) {
-      alert("Please fill the Details");
-    } else {
-      const newTask = {name: taskName, description, schedule: taskSchedule.toISOString(), notification };
-      setTasks([...tasks, newTask]);
-      setTaskName("");
-      setDescription("");
-      setTaskSchedule(new Date());
-      setTaskNotification("");
+    const formattedDate = formatDateForOracle(new Date(taskSchedule));
+    const newTask = {
+      taskName,
+      taskDescription:description,
+      taskSchedule: formattedDate,
+      notification,
+      categoryId:cat,
+    };
+    try {
+      const response = await axios.post(`${API_URL}/tasks`, newTask);
+      setTasks([...tasks, response.data]);
+      toast.success("Task created successfully!");
       setShowCreateModal(false);
-      toast.success('Task Created successfully');
-      const formattedSchedule = new Date(taskSchedule).toLocaleString(); 
-      toast.success(`Your task- ${taskName} remainder has been set at ${formattedSchedule} through ${notification} notification`);
+      fetchTasks();
+      setTaskName('');
+      setDescription("");
+    } catch (error) {
+      toast.error("Failed to create task.");
     }
-    
   };
+  
 
   const getMinTime = () => { const now = new Date(); return now; }; 
   const getMaxTime = () => { return new Date(new Date().setHours(23, 59, 59, 999)); };
 
-  const deleteTask = (index) => {
-    setEditBtnState(false);
-    const newTasks = tasks.filter((_, i) => i !== index);
-    setTasks(newTasks);
-    toast.error('Task Deleted successfully');
+  const editBtnHandle = async () => {
+    const formattedDate = formatDateForOracle(new Date(editSchedule));
+    const updatedTask = {
+      taskName: editName,
+      taskDescription: editDescription,
+      taskSchedule: formattedDate,
+      notification: editNotification,
+      categoryId:cat,
+    };
+    try {
+      const response = await axios.put(
+        `${API_URL}/tasks/${tasks[editIndex].TASK_ID}`,
+        updatedTask
+      );
+      const updatedTasks = [...tasks];
+      updatedTasks[editIndex] = response.data;
+      setTasks(updatedTasks);
+      toast.success("Task updated successfully!");
+      fetchTasks();
+      setShowEditModal(false);
+    } catch (error) {
+      toast.error("Failed to update task.");
+    }
+  };
+
+  const deleteTask = async (index) => {
+    try {
+      await axios.delete(`${API_URL}/tasks/${tasks[index].TASK_ID}`);
+      setTasks(tasks.filter((_, i) => i !== index));
+      toast.success("Task deleted successfully!");
+    } catch (error) {
+      toast.error("Failed to delete task.");
+    }
   };
 
   const toggleCreateModal = () => setShowCreateModal(!showCreateModal);
@@ -156,8 +202,8 @@ function Tasks() {
               <div>
               <DatePicker
                   placeholder="December 2, 2024 12:00 PM"
-                  selected={taskSchedule}
-                  onChange={(date) => setTaskSchedule(date)}
+                  selected={editSchedule}
+                  onChange={(date) => setEditSchedule(date)}
                   showTimeSelect
                   timeFormat="HH:mm"
                   timeIntervals={15}
@@ -170,7 +216,7 @@ function Tasks() {
                 />
               </div>
               <div>
-              <select id="notification-select" value={notification} onChange={(e) => setTaskNotification(e.target.value)} className="box" fullWidth > 
+              <select id="notification-select" value={notification} onChange={(e) => setEditNotification(e.target.value)} className="box" fullWidth > 
                 <option value="email">Email</option> 
                 <option value="phone">Phone</option> 
                 <option value="push">Push Notification</option> 
@@ -200,10 +246,10 @@ function Tasks() {
             <tbody>
               {tasks.map((task, index) => (
                 <tr key={index}>
-                  <td>{task.name}</td>
-                  <td>{task.description}</td>
-                  <td>{task.schedule}</td>
-                  <td>{task.notification}</td>
+                  <td>{task.TASK_NAME}</td>
+                  <td>{task.TASK_DESCRIPTION}</td>
+                  <td>{task.TASK_SCHEDULE}</td>
+                  <td>{task.NOTIFICATION}</td>
                   <td><button onClick={() => changeStateOfEdit(index)}><FaEdit /></button></td>
                   <td><button onClick={() => deleteTask(index)}><FaTrash /></button></td>
                 </tr>
