@@ -8,6 +8,7 @@ import {
   IconButton,
   GlobalStyles,
   Grid,
+  Link
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
@@ -69,7 +70,7 @@ const Register = () => {
       <GlobalStyles
         styles={{
           html: { backgroundColor: '#202227' },
-          body: { backgroundColor: '#202227', margin: 0, padding: 0, minHeight: '100vh' },
+          body: { backgroundColor: '#202227', margin: 0, padding: 0, minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' },
         }}
       />
       <Container
@@ -100,17 +101,17 @@ const Register = () => {
             alignItems: 'center',
             padding: '2rem',
             borderRadius: '8px',
-            color: 'white',
+            color: '#e29a0a',
             width: '100%',
             maxWidth: '500px',
           }}
         >
           <Typography variant="h4" component="h1" gutterBottom>
-            Register to CSARMS ⏰
+            Welcome to CSARMS ⏰
           </Typography>
 
           <form onSubmit={handleRegister} style={{ width: '100%' }}>
-            <Grid container justifyContent="center" spacing={2}>
+            <Grid container justifyContent="center" spacing={0.5}>
               <Grid item xs={12} sm={8}>
                 <TextField
                   variant="outlined"
@@ -123,6 +124,19 @@ const Register = () => {
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#8692A6' } }}
                   InputProps={{ style: { color: '#8692A6' } }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={8}>
@@ -137,6 +151,19 @@ const Register = () => {
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#8692A6' } }}
                   InputProps={{ style: { color: '#8692A6' } }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={8}>
@@ -151,6 +178,19 @@ const Register = () => {
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#8692A6' } }}
                   InputProps={{ style: { color: '#8692A6' } }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={8}>
@@ -165,6 +205,19 @@ const Register = () => {
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#8692A6' } }}
                   InputProps={{ style: { color: '#8692A6' } }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={8}>
@@ -179,6 +232,19 @@ const Register = () => {
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#8692A6' } }}
                   InputProps={{ style: { color: '#8692A6' } }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={8}>
@@ -192,7 +258,20 @@ const Register = () => {
                   value={formData.password}
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#8692A6' } }}
-                  InputProps={{ style: { color: '#fff' } }}
+                  InputProps={{ style: { color: '#8692A6' } }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#8692A6',
+                      },
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={8}>
@@ -200,6 +279,7 @@ const Register = () => {
                   Register
                 </Button>
               </Grid>
+              <Grid item xs={12} sm={8}> <Typography variant="body2" sx={{ textAlign: 'center', mt: 2, color: '#8692A6' }}> Have an Account Already! <Link href="/login" sx={{ color: '#e29a0a' }}>Login</Link> </Typography> </Grid>
             </Grid>
           </form>
         </Box>
