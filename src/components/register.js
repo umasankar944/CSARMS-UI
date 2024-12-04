@@ -134,6 +134,7 @@ const Register = () => {
                   name="lastname"
                   type="text"
                   value={formData.lastname}
+                  value={formData.lastname}
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#8692A6' } }}
                   InputProps={{ style: { color: '#8692A6' } }}

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/login';
 import Register from './components/register';
 import Categories from './components/categories-component';
+import AppBarComponent from './components/AppBarComponent';
 import Tasks from './components/task-component';
 import { ProtectedRoute } from './ProtectedRoute';
 import AppProvider from './Context/AppProvider';
@@ -66,9 +67,7 @@ const App = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/categories" element={
-                <ProtectedRoute>
-                  <Categories />
-                </ProtectedRoute>
+                  <><AppBarComponent /><Categories /></>
               } />
               <Route path="/tasks" element={
                 <ProtectedRoute>

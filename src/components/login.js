@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Container, TextField, Button, Typography, Box, IconButton, GlobalStyles, Grid } from '@mui/material';
+import { Container, TextField, Button, Typography, Box, IconButton, GlobalStyles, Grid, Link } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
@@ -90,13 +90,13 @@ const Login = () => {
             alignItems: 'center',
             padding: '2rem',
             borderRadius: '8px',
-            color: 'white',
+            color: '#e29a0a',
             width: '100%',
             maxWidth: '500px',
           }}
         >
           <Typography variant="h4" component="h1" gutterBottom>
-            Welcome Back 👋
+            Welcome Back to CSARMS ⏰
           </Typography>
 
           <form onSubmit={handleLogin} style={{ width: '100%' }}>
@@ -166,6 +166,7 @@ const Login = () => {
                   Login
                 </Button>
               </Grid>
+              <Grid item xs={12} sm={8}> <Typography variant="body2" sx={{ textAlign: 'center', mt: 2, color: '#8692A6' }}> Don't have an account? <Link href="/Register" sx={{ color: '#e29a0a' }}>Create Account</Link> </Typography> </Grid>
             </Grid>
           </form>
         </Box>
