@@ -19,7 +19,7 @@ import { useState } from 'react';
 import {Modal, TextField } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
-const settings = ['Dashboard', 'Change Password','Logout'];
+const settings = ['Profile', 'Change Password','Logout'];
 
 function AppBarComponent() {
   const { auth, fields } = useContext(AppContext);
@@ -59,7 +59,7 @@ function AppBarComponent() {
   };
   
   const handleMenuItemClick = (setting) => {
-    if (setting === 'Dashboard') {
+    if (setting === 'Profile') {
       navigateToDashboard();
     } else if (setting === 'Logout') {
       handleLogout();
@@ -68,10 +68,12 @@ function AppBarComponent() {
     handleCloseUserMenu();  // Close the menu after the action is performed
   };
 
+
   const handleChangePassword = () => {
     setOpenModal(true);
     handleCloseUserMenu();
   };
+
 
   const handleCloseModal = () => {
     setOpenModal(false);

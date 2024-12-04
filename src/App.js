@@ -58,7 +58,7 @@ const App = () => {
   // };
   return (
     <>
-      <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />
+      <ToastContainer position="top-right" autoClose={20000} hideProgressBar={false} />
       <AppProvider>
         <ThemeProvider theme={darkTheme}>
           <Router>
@@ -70,9 +70,10 @@ const App = () => {
                   <><AppBarComponent /><Categories /></>
               } />
               <Route path="/tasks" element={
-                <ProtectedRoute>
-                  <Tasks />
-                </ProtectedRoute>
+                // <ProtectedRoute>
+                //   <Tasks />
+                // </ProtectedRoute>
+                <><AppBarComponent /><Tasks /></>
               } />
               <Route path="*" element={<Navigate to="/register" />} />
             </Routes>
