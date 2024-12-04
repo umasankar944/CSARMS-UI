@@ -32,15 +32,15 @@ function Categories() {
   const addCategory = (e) => {
     e.preventDefault();
     if (categoryName === '' || description === '') {
-      alert("Please fill in both category name and description");
+      alert("Please fill the details");
     } else {
       const newCategory = { name: categoryName, description };
       setCategories([...categories, newCategory]);
       setCategoryName("");
       setDescription("");
       setShowCreateModal(false);
+      toast.success('Category Created successfully');
     }
-    toast.success('Category Created successfully');
   };
 
   const deleteCategory = (index) => {
@@ -98,7 +98,7 @@ function Categories() {
           </div> 
         </div> )}
         {categories.length === 0 ? (
-          <p>Your category list is empty, please add categories using the Create New Category button.</p>
+          <h4>Your category list is empty, please add categories using the Create New Category button.</h4>
         ) : (
           <table className="categories-table">
             <thead>

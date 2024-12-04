@@ -1,146 +1,210 @@
 import React, { useState } from "react";
 import "./tasks.css";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { TextField, FormControl, InputLabel, MenuItem, Select, Button } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-function tasks() {
+function Tasks() {
   const [editIndex, setEditIndex] = useState(-1);
   const [editBtn, setEditBtnState] = useState(false);
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
-  const [editSchedule, setEditSchedule] = useState("");
+  const [editSchedule, setEditSchedule] = useState(new Date());
   const [editNotification, setEditNotification] = useState("");
   const [taskName, setTaskName] = useState("");
   const [description, setDescription] = useState("");
-  const [taskSchedule, setTaskSchedule] = useState("");
+  const [taskSchedule, setTaskSchedule] = useState(new Date());
   const [notification, setTaskNotification] = useState("");
 
   const [tasks, setTasks] = useState([]);
-  const [showCreateModal, setShowCreateModal] = useState(false); 
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
   const changeStateOfEdit = (index) => {
     setEditIndex(index);
     setEditName(tasks[index].name);
     setEditDescription(tasks[index].description);
-    setTaskSchedule(tasks[index].schedule);
-    setTaskNotification(tasks[index].notification);
+    setEditSchedule(new Date(tasks[index].schedule));
+    setEditNotification(tasks[index].notification);
     setShowEditModal(true);
   };
 
   const editBtnHandle = () => {
-    const updatedtasks = [...tasks];
-    updatedtasks[editIndex] = { name: editName, description: editDescription, schedule: editSchedule, notification: editNotification };
-    settasks(updatedtasks);
+    const updatedTasks = [...tasks];
+    updatedTasks[editIndex] = { name: editName, description: editDescription, schedule: taskSchedule.toISOString(), notification: editNotification };
+    setTasks(updatedTasks);
     setShowEditModal(false);
-    toast.success('Category Edited successfully');
+    toast.success('Task Edited successfully');
   };
 
   const addTask = (e) => {
     e.preventDefault();
-    if (categoryName === '' || description === '') {
-      alert("Please fill in both category name and description");
+    if (taskName === '' || description === '' || !taskSchedule || notification === '' ) {
+      alert("Please fill the Details");
     } else {
-      const newTask = { name: categoryName, description };
-      settasks([...tasks, newTask]);
-      setCategoryName("");
+      const newTask = {name: taskName, description, schedule: taskSchedule.toISOString(), notification };
+      setTasks([...tasks, newTask]);
+      setTaskName("");
       setDescription("");
+      setTaskSchedule(new Date());
+      setTaskNotification("");
       setShowCreateModal(false);
+      toast.success('Task Created successfully');
+      const formattedSchedule = new Date(taskSchedule).toLocaleString(); 
+      toast.success(`Your task- ${taskName} remainder has been set at ${formattedSchedule} through ${notification} notification`);
     }
-    toast.success('Category Created successfully');
+    
   };
 
-  const deleteCategory = (index) => {
+  const deleteTask = (index) => {
     setEditBtnState(false);
-    const newtasks = tasks.filter((_, i) => i !== index);
-    settasks(newtasks);
-    toast.error('Category Deleted successfully');
+    const newTasks = tasks.filter((_, i) => i !== index);
+    setTasks(newTasks);
+    toast.error('Task Deleted successfully');
   };
 
-  const toggleCreateModal = () => setShowCreateModal(!showCreateModal); 
+  const toggleCreateModal = () => setShowCreateModal(!showCreateModal);
   const toggleEditModal = () => setShowEditModal(!showEditModal);
 
   return (
     <div className="App">
       <div className="item-box">
-        <h1>Get things Done!</h1>
-        <button className="btn" onClick={toggleCreateModal}>Create New Category</button>
+        <h1>Create. Schedule. Get Remainder. Repeat !!!</h1>
+        <button className="btn" onClick={toggleCreateModal}>Create New Task</button>
 
         {showCreateModal && (
           <div className="modal">
             <div className="modal-content">
               <span className="close" onClick={toggleCreateModal}>&times;</span>
-              <h2>Create New Category</h2>
+              <h2>Create New Task</h2>
               <div>
-              <input
-                placeholder="Category Name"
-                value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
-                className="box"
-              />
+                <input
+                  placeholder="Task Name"
+                  value={taskName}
+                  onChange={(e) => setTaskName(e.target.value)}
+                  className="box"
+                  fullWidth
+                />
               </div>
               <div>
-              <input
-                placeholder="Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="box"
-              />
+                <input
+                  placeholder="Description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="box"
+                  fullWidth
+                />
               </div>
-              <button onClick={addCategory} className="btn">Create Category</button>
+              <div>
+                <DatePicker
+                  placeholder="December 2, 2024 12:00 PM"
+                  selected={taskSchedule}
+                  onChange={(date) => setTaskSchedule(date)}
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  dateFormat="MMMM d, yyyy h:mm aa"
+                  className="box"
+                  fullWidth
+                />
+              </div>
+              <div>
+               <select id="notification-select" value={notification} onChange={(e) => setTaskNotification(e.target.value)} className="box" fullWidth > 
+                <option value="email">Email</option> 
+                <option value="phone">Phone</option> 
+                <option value="push">Push Notification</option> 
+              </select>
+              </div>
+              <Button onClick={addTask} variant="contained" color="primary">
+                Create Task
+              </Button>
             </div>
           </div>
         )}
-        {showEditModal && ( <div className="modal"> 
-          <div className="modal-content"> 
-            <span className="close" onClick={toggleEditModal}>&times;</span> 
-            <h2>Edit Category</h2> 
-            <div className="input-group"> 
-              <input placeholder="Edit category name" value={editName} onChange={(e) => setEditName(e.target.value)} className="box" /> 
-            </div> 
-            <div className="input-group"> 
-              <input placeholder="Edit description" value={editDescription} onChange={(e) => setEditDescription(e.target.value)} className="box" /> 
-            </div> 
-            <button onClick={editBtnHandle} className="btn">Edit Category</button> 
-          </div> 
-        </div> )}
+
+        {showEditModal && (
+          <div className="modal">
+            <div className="modal-content">
+              <span className="close" onClick={toggleEditModal}>&times;</span>
+              <h2>Edit Task</h2>
+              <div className="input-group">
+                <input
+                  placeholder="Edit Task name"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="box"
+                  fullWidth
+                />
+              </div>
+              <div className="input-group">
+                <input
+                  placeholder="Edit description"
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  className="box"
+                  fullWidth
+                />
+              </div>
+              <div>
+              <DatePicker
+                  placeholder="December 2, 2024 12:00 PM"
+                  selected={taskSchedule}
+                  onChange={(date) => setTaskSchedule(date)}
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  dateFormat="MMMM d, yyyy h:mm aa"
+                  className="box"
+                  fullWidth
+                />
+              </div>
+              <div>
+              <select id="notification-select" value={notification} onChange={(e) => setTaskNotification(e.target.value)} className="box" fullWidth > 
+                <option value="email">Email</option> 
+                <option value="phone">Phone</option> 
+                <option value="push">Push Notification</option> 
+              </select>
+              </div>
+              <Button onClick={editBtnHandle} variant="contained" color="primary">
+                Edit Task
+              </Button>
+            </div>
+          </div>
+        )}
+
         {tasks.length === 0 ? (
-          <p>Your category list is empty, please add tasks using the Create New Category button.</p>
+          <h4>Your Task list is empty, please add tasks using the Create New Task button.</h4>
         ) : (
           <table className="tasks-table">
             <thead>
               <tr>
-                <th>Category Name</th>
+                <th>Task Name</th>
                 <th>Description</th>
-                <th>View Tasks</th>
+                <th>Schedule</th>
+                <th>Notification</th>
                 <th>Edit</th>
                 <th>Delete</th>
               </tr>
             </thead>
             <tbody>
-              {tasks.map((category, index) => (
+              {tasks.map((task, index) => (
                 <tr key={index}>
-                  <td>{category.name}</td>
-                  <td>{category.description}</td>
-                  <td><button>View Tasks</button></td>
+                  <td>{task.name}</td>
+                  <td>{task.description}</td>
+                  <td>{task.schedule}</td>
+                  <td>{task.notification}</td>
                   <td><button onClick={() => changeStateOfEdit(index)}><FaEdit /></button></td>
-                  <td><button onClick={() => deleteCategory(index)}><FaTrash /></button></td>
+                  <td><button onClick={() => deleteTask(index)}><FaTrash /></button></td>
                 </tr>
               ))}
             </tbody>
           </table>
-        )}
-
-        {editBtn && (
-          <div className="edit-item">
-            <input className="input-box" placeholder="Edit category name" value={editName} onChange={(e) => setEditName(e.target.value)} />
-            <input className="input-box" placeholder="Edit description" value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
-            <button className="add-btn" onClick={editBtnHandle}>Edit item</button>
-          </div>
         )}
       </div>
     </div>
   );
 }
 
-export default tasks;
+export default Tasks;
