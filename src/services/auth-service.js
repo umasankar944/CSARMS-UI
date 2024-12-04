@@ -35,3 +35,12 @@ export const getUserDetails = async (payload) => {
         console.error(err)
     }
 }
+
+export const sendToNotificationQueue = async (payload) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/notification`, payload )
+        return response.data
+    } catch (err) {
+        console.error(err)
+    }
+}
