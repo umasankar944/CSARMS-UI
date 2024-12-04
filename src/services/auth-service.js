@@ -5,6 +5,8 @@ const BASE_URL = 'http://localhost:5000'
 export const userLogin = async (payload) => {
     try {
         const response = await axios.post(`${BASE_URL}/login`, payload)
+        console.log(response.data.status)
+        console.log(response.status)
         return response.data
     } catch (err) {
         console.error(err)
@@ -16,6 +18,8 @@ export const userRegister = async (payload) => {
     console.log("inside post")
     try {
         const response = await axios.post(`${BASE_URL}/register`, payload)
+        console.log(response)
+        console.log(response.status)
         return response.data
     } catch (err) {
         console.error(err)

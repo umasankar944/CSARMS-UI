@@ -45,17 +45,20 @@ const Register = () => {
     e.preventDefault();
     try {
       const response = await userRegister(formData);
-      if (response.status === 200) {
+      if(response.status == 203){
+        toast.error('User name already exists !!!');
+      }
+      else if (response.status === 200 || response.status === 201) {
+        toast.success('Registration successful!');
         window.sessionStorage.setItem('token', response.token);
         await handleAccessToken();
         setAuth(true);
-        toast.success('Registration successful!');
         navigate('/login');
       } else {
         toast.error('Registration failed. Please check your details and try again.');
       }
     } catch (error) {
-      toast.error('Registration failed. Please check your details and try again.');
+      toast.error(`Registration failed. Please check your details and try again.${error}`);
     }
   };
 

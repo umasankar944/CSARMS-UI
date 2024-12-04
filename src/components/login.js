@@ -31,12 +31,12 @@ const Login = () => {
       const response = await userLogin(formData);
       console.log(response)
       console.log(response.status)
-      if(response.status === 200){
+      if(response.status === 200 || response.status === 201){
+        toast.success('Login successful!');
         window.sessionStorage.setItem('token', response.token);
         await handleAccessToken(); // Fetch user details after setting the token
         setAuth(true);
-        toast.success('Login successful!');
-        navigate("/admin-dashboard");
+        navigate("/categories");
       }
       else{
         toast.error('Login failed. Please check your credentials and try again.');
@@ -139,7 +139,7 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   InputLabelProps={{ style: { color: '#8692A6' } }}
-                  InputProps={{ style: { color: '#fff' } }}
+                  InputProps={{ style: { color: '#8692A6' } }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       '& fieldset': {
