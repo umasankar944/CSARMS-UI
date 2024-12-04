@@ -58,6 +58,9 @@ function Tasks() {
     
   };
 
+  const getMinTime = () => { const now = new Date(); return now; }; 
+  const getMaxTime = () => { return new Date(new Date().setHours(23, 59, 59, 999)); };
+
   const deleteTask = (index) => {
     setEditBtnState(false);
     const newTasks = tasks.filter((_, i) => i !== index);
@@ -106,6 +109,9 @@ function Tasks() {
                   timeFormat="HH:mm"
                   timeIntervals={15}
                   dateFormat="MMMM d, yyyy h:mm aa"
+                  minDate={new Date()}
+                  minTime={taskSchedule && new Date(taskSchedule).toLocaleDateString() === new Date().toLocaleDateString() ? getMinTime() : new Date().setHours(0,0,0,0)} 
+                  maxTime={taskSchedule && new Date(taskSchedule).toLocaleDateString() === new Date().toLocaleDateString() ? getMaxTime() : new Date().setHours(23,59,59,999)}
                   className="box"
                   fullWidth
                 />
@@ -156,6 +162,9 @@ function Tasks() {
                   timeFormat="HH:mm"
                   timeIntervals={15}
                   dateFormat="MMMM d, yyyy h:mm aa"
+                  minDate={new Date()}
+                  minTime={taskSchedule && new Date(taskSchedule).toLocaleDateString() === new Date().toLocaleDateString() ? getMinTime() : new Date().setHours(0,0,0,0)} 
+                  maxTime={taskSchedule && new Date(taskSchedule).toLocaleDateString() === new Date().toLocaleDateString() ? getMaxTime() : new Date().setHours(23,59,59,999)}
                   className="box"
                   fullWidth
                 />
