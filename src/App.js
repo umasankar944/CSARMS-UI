@@ -69,7 +69,7 @@ const App = () => {
               <Route path="/categories" element={
                   <><AppBarComponent /><Categories /></>
               } />
-              <Route path="/tasks" element={
+              <Route path="/tasks/:cat" element={
                 // <ProtectedRoute>
                 //   <Tasks />
                 // </ProtectedRoute>
