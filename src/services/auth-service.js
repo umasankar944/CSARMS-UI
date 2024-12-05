@@ -5,8 +5,8 @@ const BASE_URL = 'http://localhost:5000'
 export const userLogin = async (payload) => {
     try {
         const response = await axios.post(`${BASE_URL}/login`, payload)
-        console.log(response.data.status)
         console.log(response.status)
+        console.log(response.data.user.USERID)
         return response.data
     } catch (err) {
         console.error(err)

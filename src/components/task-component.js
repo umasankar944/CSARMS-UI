@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState,useEffect,useContext} from "react";
 import "./tasks.css";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { TextField, FormControl, InputLabel, MenuItem, Select, Button } from '@mui/material';
@@ -7,6 +7,9 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import {sendToNotificationQueue} from '../services/auth-service'
+import AppContext from "../Context/AppContext";
+
 const API_URL = "http://localhost:5000";
 function Tasks() {
   const [editIndex, setEditIndex] = useState(-1);
@@ -19,6 +22,8 @@ function Tasks() {
   const [description, setDescription] = useState("");
   const [taskSchedule, setTaskSchedule] = useState(new Date());
   const [notification, setTaskNotification] = useState("");
+  const [sourceId, setSourceId] = useState("");
+  const { emailId,phone } = useContext(AppContext);
 
   const [tasks, setTasks] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -55,6 +60,12 @@ function Tasks() {
   const addTask = async (e) => {
     e.preventDefault();
     const formattedDate = formatDateForOracle(new Date(taskSchedule));
+    if(notification === "email"){
+      setSourceId(emailId)
+    }
+    else if (notification === "phone"){
+      setSourceId(phone)
+    }
     const newTask = {
       taskName,
       taskDescription:description,
@@ -62,14 +73,28 @@ function Tasks() {
       notification,
       categoryId:cat,
     };
+    const formData = {
+      name: taskName,
+      description : description,
+      scheduler: formattedDate,
+      notification:notification,
+      source_id: sourceId
+    };
     try {
       const response = await axios.post(`${API_URL}/tasks`, newTask);
       setTasks([...tasks, response.data]);
-      toast.success("Task created successfully!");
       setShowCreateModal(false);
       fetchTasks();
       setTaskName('');
       setDescription("");
+      toast.success("Task created successfully!");
+      const notification_response = await sendToNotificationQueue(formData);
+      if("successfully" in notification_response){
+        toast.success(`Task ${taskName} has been scheduled for a remainder at ${formattedDate}`);
+      }
+      else{
+        toast.error(`Failed to send out the remainder`);
+      }
     } catch (error) {
       toast.error("Failed to create task.");
     }
@@ -88,6 +113,19 @@ function Tasks() {
       notification: editNotification,
       categoryId:cat,
     };
+    if(notification === "email"){
+      setSourceId(emailId)
+    }
+    else if (notification === "phone"){
+      setSourceId(phone)
+    }
+    const formData = {
+      name: editName,
+      description : editDescription,
+      scheduler: formattedDate,
+      notification:editNotification,
+      source_id: sourceId
+    };
     try {
       const response = await axios.put(
         `${API_URL}/tasks/${tasks[editIndex].TASK_ID}`,
@@ -96,9 +134,16 @@ function Tasks() {
       const updatedTasks = [...tasks];
       updatedTasks[editIndex] = response.data;
       setTasks(updatedTasks);
-      toast.success("Task updated successfully!");
       fetchTasks();
       setShowEditModal(false);
+      toast.success("Task updated successfully!");
+      const notification_response = await sendToNotificationQueue(formData);
+      if("successfully" in notification_response){
+        toast.success(`Task ${taskName} has been scheduled for a remainder at ${formattedDate}`);
+      }
+      else{
+        toast.error(`Failed to send out the remainder ${notification_response}`);
+      }
     } catch (error) {
       toast.error("Failed to update task.");
     }
@@ -164,6 +209,9 @@ function Tasks() {
               </div>
               <div>
                <select id="notification-select" value={notification} onChange={(e) => setTaskNotification(e.target.value)} className="box" fullWidth > 
+               <option value="" disabled hidden>
+                  Select Notification Method
+                </option>
                 <option value="email">Email</option> 
                 <option value="phone">Phone</option> 
                 <option value="push">Push Notification</option> 
@@ -217,6 +265,9 @@ function Tasks() {
               </div>
               <div>
               <select id="notification-select" value={notification} onChange={(e) => setEditNotification(e.target.value)} className="box" fullWidth > 
+              <option value="" disabled hidden>
+                Select Notification Method
+              </option>
                 <option value="email">Email</option> 
                 <option value="phone">Phone</option> 
                 <option value="push">Push Notification</option> 

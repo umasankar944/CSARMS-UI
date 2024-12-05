@@ -58,7 +58,7 @@ const Register = () => {
         toast.error('Registration failed. Please check your details and try again.');
       }
     } catch (error) {
-      toast.error(`Registration failed. Please check your details and try again.${error}`);
+      toast.error(`Registration failed. Please check your details and try again.`);
     }
   };
 

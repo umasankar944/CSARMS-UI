@@ -66,7 +66,7 @@ const App = () => {
               <Route path="/" element={<Register />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/categories" element={
+              <Route path="/categories/:userId" element={
                   <><AppBarComponent /><Categories /></>
               } />
               <Route path="/tasks/:cat" element={
