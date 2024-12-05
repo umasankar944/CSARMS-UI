@@ -20,12 +20,12 @@ function Categories() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [viewCatId,setViewCatId]= useState("");
-  const { userId } = useContext(AppContext);
-
+  const { fields } = useContext(AppContext);
+  let user_id = fields.USERID;
   // Fetch categories from the backend
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/categories/${userId}`);
+      const response = await axios.get(`http://localhost:5000/categories/${fields.USERID}`);
       setCategories(response.data);
     } catch (error) {
       toast.error("Failed to fetch categories");
@@ -52,7 +52,7 @@ function Categories() {
       const newCategory = {
         name:categoryName,
         description:description,
-        userId
+        userId:user_id
       };
       const response = await axios.post("http://localhost:5000/categories", newCategory)
       setCategories([...categories, response.data]);
