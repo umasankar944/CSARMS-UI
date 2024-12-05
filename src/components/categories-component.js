@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useContext } from "react";
 import "./categories.css";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
@@ -6,6 +6,9 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
+import { useParams } from "react-router-dom";
+import AppContext from "../Context/AppContext";
+
 
 function Categories() {
   const [editIndex, setEditIndex] = useState(-1);
@@ -17,10 +20,12 @@ function Categories() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [viewCatId,setViewCatId]= useState("");
+  const { userId } = useContext(AppContext);
+
   // Fetch categories from the backend
   const fetchCategories = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/categories");
+      const response = await axios.get(`http://localhost:5000/categories/${userId}`);
       setCategories(response.data);
     } catch (error) {
       toast.error("Failed to fetch categories");
@@ -44,18 +49,20 @@ function Categories() {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/categories", {
-        name: categoryName,
-        description,
-      });
-      // setCategories([...categories, response.data]);
+      const newCategory = {
+        name:categoryName,
+        description:description,
+        userId
+      };
+      const response = await axios.post("http://localhost:5000/categories", newCategory)
+      setCategories([...categories, response.data]);
+      setShowCreateModal(false);
+      toast.success("Category created successfully");
       fetchCategories();
       setCategoryName("");
       setDescription("");
-      setShowCreateModal(false);
-      toast.success("Category created successfully");
     } catch (error) {
-      toast.error("Failed to create category");
+      toast.error(`Failed to create category ${error}`);
       console.error(error);
     }
   };

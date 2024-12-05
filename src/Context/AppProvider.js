@@ -11,6 +11,9 @@ const initialState = {
 const AppProvider = (props) => {
   const [auth, setAuth] = useState(null);
   const [fields, setFields] = useState(initialState);
+  const [userId, setUserId] = useState("");
+  const [emailId, setemailId] = useState("");
+  const [phone, setphone] = useState("");
 
 
   const handleAccessToken = useCallback(async () => {
@@ -39,7 +42,7 @@ const AppProvider = (props) => {
     handleAccessToken();
   }, [handleAccessToken]);
   return (
-    <AppContext.Provider value={{ auth, setAuth, fields, handleAccessToken }}>
+    <AppContext.Provider value={{ auth, setAuth, fields, handleAccessToken, userId, setUserId, emailId, setemailId,phone, setphone }}>
       {props.children}
     </AppContext.Provider>
   );

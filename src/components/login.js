@@ -9,10 +9,16 @@ import AppContext from '../Context/AppContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+
+
 const Login = () => {
   const navigate = useNavigate();
+  const viewCategories=(id)=>{
+    navigate(`/categories/${id}`)
+  }
   const [formData, setFormData] = useState({ username: '', password: '' });
   const { setAuth, handleAccessToken } = useContext(AppContext);
+  const {setUserId, setemailId, setphone } = useContext(AppContext);
   const [error,setError]= useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -36,7 +42,13 @@ const Login = () => {
         window.sessionStorage.setItem('token', response.token);
         await handleAccessToken(); // Fetch user details after setting the token
         setAuth(true);
-        navigate("/categories");
+        console.log("I am in")
+        console.log(response)
+        setUserId(response.user.USERID)
+        setemailId(response.user.EMAIL)
+        setphone(response.user.PHONE)
+        viewCategories(response.user.USERID)
+        //navigate("/categories");
       }
       else{
         toast.error('Login failed. Please check your credentials and try again.');
@@ -44,7 +56,7 @@ const Login = () => {
         
       }
     } catch (error) {
-      toast.error('Login failed. Please check your credentials and try again.');
+      toast.error(`Login failed. Please check your credentials and try again. ${error}`);
     }
   };
 
