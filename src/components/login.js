@@ -39,15 +39,12 @@ const Login = () => {
       console.log(response.status)
       if(response.status === 200 || response.status === 201){
         toast.success('Login successful!');
-        window.sessionStorage.setItem('token', response.token);
+        window.sessionStorage.setItem('token', response.user.token);
         await handleAccessToken(); // Fetch user details after setting the token
         setAuth(true);
         console.log("I am in")
-        console.log(response)
-        setUserId(response.user.USERID)
-        setemailId(response.user.EMAIL)
-        setphone(response.user.PHONE)
-        viewCategories(response.user.USERID)
+        console.log(response.user.id)
+        viewCategories(response.user.id)
         //navigate("/categories");
       }
       else{
@@ -56,7 +53,7 @@ const Login = () => {
         
       }
     } catch (error) {
-      toast.error(`Login failed. Please check your credentials and try again. ${error}`);
+      toast.error(`Login failed. Please check your credentials and try again.`);
     }
   };
 

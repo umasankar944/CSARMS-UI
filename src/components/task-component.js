@@ -23,8 +23,7 @@ function Tasks() {
   const [taskSchedule, setTaskSchedule] = useState(new Date());
   const [notification, setTaskNotification] = useState("");
   const [sourceId, setSourceId] = useState("");
-  const { emailId,phone } = useContext(AppContext);
-
+  const { fields } = useContext(AppContext);
   const [tasks, setTasks] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -60,11 +59,13 @@ function Tasks() {
   const addTask = async (e) => {
     e.preventDefault();
     const formattedDate = formatDateForOracle(new Date(taskSchedule));
-    if(notification === "email"){
-      setSourceId(emailId)
-    }
-    else if (notification === "phone"){
-      setSourceId(phone)
+    // Use a local variable for sourceId
+    let currentSourceId = '';
+    console.log(notification)
+    if (notification === "email") {
+      currentSourceId = fields.EMAIL; // Assign directly to the local variable
+    } else if (notification === "phone") {
+      currentSourceId = fields.PHONE; // Assign directly to the local variable
     }
     const newTask = {
       taskName,
@@ -78,7 +79,7 @@ function Tasks() {
       description : description,
       scheduler: formattedDate,
       notification:notification,
-      source_id: sourceId
+      source_id: currentSourceId
     };
     try {
       const response = await axios.post(`${API_URL}/tasks`, newTask);
@@ -87,14 +88,17 @@ function Tasks() {
       fetchTasks();
       setTaskName('');
       setDescription("");
-      toast.success("Task created successfully!");
+      if(response.status === 200 || response.status === 201){
+        toast.success("Task created successfully!");
+        toast.success(`Task ${taskName} has been scheduled for a remainder at ${formattedDate} using ${notification} notification`);
+      }
       const notification_response = await sendToNotificationQueue(formData);
-      if("successfully" in notification_response){
-        toast.success(`Task ${taskName} has been scheduled for a remainder at ${formattedDate}`);
+      if(notification === 'push'){
+        toast.success(`Reminder for Task ${taskName}. Please Complete the Task ASAP`, { autoClose: false });
       }
-      else{
-        toast.error(`Failed to send out the remainder`);
-      }
+      // else{
+      //   toast.error(`Failed to send out the remainder`);
+      // }
     } catch (error) {
       toast.error("Failed to create task.");
     }
@@ -113,18 +117,23 @@ function Tasks() {
       notification: editNotification,
       categoryId:cat,
     };
-    if(notification === "email"){
-      setSourceId(emailId)
+    // Use a local variable for sourceId
+    let currentSourceId = '';
+    console.log(editNotification)
+    if (editNotification === "email") {
+      currentSourceId = fields.EMAIL; // Assign directly to the local variable
+    } else if (editNotification === "phone") {
+      currentSourceId = fields.PHONE; // Assign directly to the local variable
     }
-    else if (notification === "phone"){
-      setSourceId(phone)
+    else{
+      currentSourceId = "";
     }
     const formData = {
       name: editName,
       description : editDescription,
       scheduler: formattedDate,
       notification:editNotification,
-      source_id: sourceId
+      source_id: currentSourceId
     };
     try {
       const response = await axios.put(
@@ -136,14 +145,20 @@ function Tasks() {
       setTasks(updatedTasks);
       fetchTasks();
       setShowEditModal(false);
-      toast.success("Task updated successfully!");
+      if(response.status === 200 || response.status === 201){
+        toast.success("Task updated successfully!");
+        toast.success(`Task ${taskName} has been scheduled for a remainder at ${formattedDate} using ${editNotification} notification` );
+      }
       const notification_response = await sendToNotificationQueue(formData);
-      if("successfully" in notification_response){
-        toast.success(`Task ${taskName} has been scheduled for a remainder at ${formattedDate}`);
+      if(notification === 'push'){
+        toast.success(`Reminder for Task ${taskName}. Please Complete the Task ASAP`, { autoClose: false });
       }
-      else{
-        toast.error(`Failed to send out the remainder ${notification_response}`);
-      }
+      // if(notification_response.status === 200 || notification_response.status === 201){
+        
+      // }
+      // else{
+      //   toast.error(`Failed to send out the remainder ${notification_response}`);
+      // }
     } catch (error) {
       toast.error("Failed to update task.");
     }
@@ -264,9 +279,9 @@ function Tasks() {
                 />
               </div>
               <div>
-              <select id="notification-select" value={notification} onChange={(e) => setEditNotification(e.target.value)} className="box" fullWidth > 
+              <select id="notification-select" value={editNotification} onChange={(e) => setEditNotification(e.target.value)} className="box" fullWidth > 
               <option value="" disabled hidden>
-                Select Notification Method
+                Edit Notification Method
               </option>
                 <option value="email">Email</option> 
                 <option value="phone">Phone</option> 

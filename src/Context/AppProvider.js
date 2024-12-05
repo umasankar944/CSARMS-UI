@@ -3,9 +3,12 @@ import AppContext from "./AppContext";
 import { getUserDetails } from "../services/auth-service";
 
 const initialState = {
+  "USERID":"",
   "USERNAME":"",
   "FIRSTNAME": "",
   "LASTNAME": "",
+  "EMAIL" :"",
+  "PHONE" : ""
 };
 
 const AppProvider = (props) => {
