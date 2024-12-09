@@ -88,12 +88,13 @@ function Tasks() {
       fetchTasks();
       setTaskName('');
       setDescription("");
+      console.log(response.status)
       if(response.status === 200 || response.status === 201){
         toast.success("Task created successfully!");
         toast.success(`Task ${taskName} has been scheduled for a remainder at ${formattedDate} using ${notification} notification`);
       }
       const notification_response = await sendToNotificationQueue(formData);
-      if(notification === 'push'){
+      if(notification_response.status === 200 || notification_response.status === 201){
         toast.success(`Reminder for Task ${taskName}. Please Complete the Task ASAP`, { autoClose: false });
       }
       // else{
@@ -150,7 +151,7 @@ function Tasks() {
         toast.success(`Task ${taskName} has been scheduled for a remainder at ${formattedDate} using ${editNotification} notification` );
       }
       const notification_response = await sendToNotificationQueue(formData);
-      if(notification === 'push'){
+      if(notification_response.status === 200 || notification_response.status === 201){
         toast.success(`Reminder for Task ${taskName}. Please Complete the Task ASAP`, { autoClose: false });
       }
       // if(notification_response.status === 200 || notification_response.status === 201){
@@ -179,6 +180,7 @@ function Tasks() {
 
   return (
     <div className="App">
+      <ToastContainer />
       <div className="item-box">
         <h1>Create. Schedule. Get Remainder. Repeat !!!</h1>
         <button className="btn" onClick={toggleCreateModal}>Create New Task</button>
