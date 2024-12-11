@@ -9,7 +9,33 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import {sendToNotificationQueue} from '../services/auth-service'
 import AppContext from "../Context/AppContext";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+} from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
+import { DataGrid } from "@mui/x-data-grid";
+import { styled } from '@mui/material/styles';
 
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
 const API_URL = "http://localhost:5000";
 function Tasks() {
   const [editIndex, setEditIndex] = useState(-1);
@@ -55,59 +81,148 @@ function Tasks() {
     const pad = (n) => (n < 10 ? '0' + n : n);
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   };
+  // const [searchText, setSearchText] = useState('');
+  // const [filteredTasks, setFilteredTasks] = useState(tasks);
 
-  const addTask = async (e) => {
-    e.preventDefault();
-    const formattedDate = formatDateForOracle(new Date(taskSchedule));
-    // Use a local variable for sourceId
-    let currentSourceId = '';
-    console.log(notification)
-    if (notification === "email") {
-      currentSourceId = fields.EMAIL; // Assign directly to the local variable
-    } else if (notification === "phone") {
-      currentSourceId = fields.PHONE; // Assign directly to the local variable
-    }
-    const newTask = {
-      taskName,
-      taskDescription:description,
-      taskSchedule: formattedDate,
-      notification,
-      categoryId:cat,
-    };
-    const formData = {
-      name: taskName,
-      description : description,
-      scheduler: formattedDate,
-      notification:notification,
-      source_id: currentSourceId
-    };
-    try {
-      const response = await axios.post(`${API_URL}/tasks`, newTask);
-      setTasks([...tasks, response.data]);
-      setShowCreateModal(false);
-      fetchTasks();
-      setTaskName('');
-      setDescription("");
-      console.log(response.status)
-      if(response.status === 200 || response.status === 201){
-        toast.success("Task created successfully!");
-        toast.success(`Task ${taskName} has been scheduled for a remainder at ${formattedDate} using ${notification} notification`);
-      }
-      const notification_response = await sendToNotificationQueue(formData);
-      if(notification_response.status === 200 || notification_response.status === 201){
-        toast.success(`Reminder for Task ${taskName}. Please Complete the Task ASAP`, { autoClose: false });
-      }
-      // else{
-      //   toast.error(`Failed to send out the remainder`);
-      // }
-    } catch (error) {
-      toast.error("Failed to create task.");
+  // // Function to handle search and filter
+  // const handleSearch = (searchValue) => {
+  //   setSearchText(searchValue);
+  //   const filtered = tasks.filter((task) =>
+  //     task.TASK_NAME.toLowerCase().includes(searchValue.toLowerCase()) ||
+  //     task.TASK_DESCRIPTION.toLowerCase().includes(searchValue.toLowerCase()) ||
+  //     task.TASK_SCHEDULE.toLowerCase().includes(searchValue.toLowerCase()) ||
+  //     task.NOTIFICATION.toLowerCase().includes(searchValue.toLowerCase())
+  //   );
+  //   setFilteredTasks(filtered);
+  // };
+ 
+  const [files, setFiles] = React.useState([]);
+  // const [roomId, setRoomId] = React.useState('');
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setFiles(file); // Save the selected file
     }
   };
+  const addTask = async (e) => {
+    e.preventDefault();
   
-
+    if (!files) {
+      toast.error("Please upload a file!");
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("file", files); // Append the file
+    formData.append("taskName", taskName);
+    formData.append("taskDescription", description);
+    formData.append("taskSchedule", formatDateForOracle(new Date(taskSchedule)));
+    formData.append("notification", notification);
+    formData.append("categoryId", cat);
+  
+    try {
+      const response = await axios.post(`${API_URL}/tasks`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data", // Required for file uploads
+        },
+      });
+  
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Task created successfully!");
+        fetchTasks(); // Refresh tasks
+        setTaskName("");
+        setDescription("");
+        setFiles(null);
+      }
+    } catch (error) {
+      toast.error("Failed to create task.");
+      console.error(error);
+    }
+  };
+  const columns = [
+    {
+      field: 'TASK_NAME',
+      headerName: 'Task Name',
+      flex: 1,
+    },
+    {
+      field: 'TASK_DESCRIPTION',
+      headerName: 'Description',
+      flex: 2,
+    },
+    {
+      field: 'TASK_SCHEDULE',
+      headerName: 'Schedule',
+      flex: 1,
+    },
+    {
+      field: 'NOTIFICATION',
+      headerName: 'Notification',
+      flex: 1,
+    },
+    {
+      field: 'edit',
+      headerName: 'Edit',
+      flex: 0.5,
+      renderCell: (params) => (
+        <IconButton onClick={() => changeStateOfEdit(params.row.id)} color="primary">
+          <FaEdit />
+        </IconButton>
+      ),
+      sortable: false,
+      filterable: false,
+    },
+    {
+      field: 'delete',
+      headerName: 'Delete',
+      flex: 0.5,
+      renderCell: (params) => (
+        <IconButton onClick={() => deleteTask(params.row.id)} color="secondary">
+          <FaTrash />
+        </IconButton>
+      ),
+      sortable: false,
+      filterable: false,
+    },
+    {
+      field: 'TASK_ATTACHMENT',
+      headerName: 'Download',
+      flex: 0.5,
+      renderCell: (params) => (
+        <IconButton onClick={() => downloadFile(params.row.id)} color="secondary">
+          <DownloadIcon />
+        </IconButton>
+      ),
+      sortable: false,
+      filterable: false,
+    },
+  ];
   const getMinTime = () => { const now = new Date(); return now; }; 
   const getMaxTime = () => { return new Date(new Date().setHours(23, 59, 59, 999)); };
+  const downloadFile = (index) => {
+    const filePath = tasks[index].TASK_ATTACHMENT; // assuming this is the relative path to the file
+
+    // Base URL for localhost (update this if your server runs on a different port)
+    const baseUrl = 'http://localhost:5000/download/'; // Change this to your actual server URL
+
+    // Combine base URL with the file path
+    const fullUrl = baseUrl + filePath;
+
+    // Create an anchor element
+    const link = document.createElement('a');
+    link.href = fullUrl; // Set the full URL of the file
+    link.download = filePath.split('/').pop(); // Set the filename to be downloaded
+
+    // Append the link to the DOM temporarily
+    document.body.appendChild(link);
+
+    // Trigger the download by simulating a click
+    link.click();
+
+    // Remove the link from the DOM after the download is triggered
+    document.body.removeChild(link);
+};
 
   const editBtnHandle = async () => {
     const formattedDate = formatDateForOracle(new Date(editSchedule));
@@ -117,6 +232,7 @@ function Tasks() {
       taskSchedule: formattedDate,
       notification: editNotification,
       categoryId:cat,
+      file:files,
     };
     // Use a local variable for sourceId
     let currentSourceId = '';
@@ -134,7 +250,8 @@ function Tasks() {
       description : editDescription,
       scheduler: formattedDate,
       notification:editNotification,
-      source_id: currentSourceId
+      source_id: currentSourceId,
+      file:files,
     };
     try {
       const response = await axios.put(
@@ -174,6 +291,10 @@ function Tasks() {
       toast.error("Failed to delete task.");
     }
   };
+  
+  const [filterModel, setFilterModel] = useState({
+    items: [],
+  });
 
   const toggleCreateModal = () => setShowCreateModal(!showCreateModal);
   const toggleEditModal = () => setShowEditModal(!showEditModal);
@@ -224,6 +345,27 @@ function Tasks() {
                   fullWidth
                 />
               </div>
+              <Button
+      component="label"
+      role={undefined}
+      fullWidth
+      sx={{
+        border: '1px solid black',
+        padding: '8px 16px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+      tabIndex={-1}
+      startIcon={<CloudUploadIcon />}
+    >
+      Upload files
+      <VisuallyHiddenInput
+        type="file"
+        onChange={handleFileChange}
+        multiple
+      />
+    </Button>
               <div>
                <select id="notification-select" value={notification} onChange={(e) => setTaskNotification(e.target.value)} className="box" fullWidth > 
                <option value="" disabled hidden>
@@ -300,31 +442,17 @@ function Tasks() {
         {tasks.length === 0 ? (
           <h4>Your Task list is empty, please add tasks using the Create New Task button.</h4>
         ) : (
-          <table className="tasks-table">
-            <thead>
-              <tr>
-                <th>Task Name</th>
-                <th>Description</th>
-                <th>Schedule</th>
-                <th>Notification</th>
-                <th>Edit</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tasks.map((task, index) => (
-                <tr key={index}>
-                  <td>{task.TASK_NAME}</td>
-                  <td>{task.TASK_DESCRIPTION}</td>
-                  <td>{task.TASK_SCHEDULE}</td>
-                  <td>{task.NOTIFICATION}</td>
-                  <td><button onClick={() => changeStateOfEdit(index)}><FaEdit /></button></td>
-                  <td><button onClick={() => deleteTask(index)}><FaTrash /></button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+          <Paper sx={{ height: 400, width: '100%' }}>
+      <DataGrid
+        rows={tasks.map((task, index) => ({ id: index, ...task }))}
+        columns={columns}
+        pageSize={10}
+        rowsPerPageOptions={[5, 10, 20]}
+        filterModel={filterModel}
+        onFilterModelChange={(newFilterModel) => setFilterModel(newFilterModel)}
+        disableSelectionOnClick
+      />
+    </Paper>       )}
       </div>
     </div>
   );
