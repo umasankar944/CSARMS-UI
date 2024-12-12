@@ -67,13 +67,14 @@ const App = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/categories/:userId" element={
-                  <><AppBarComponent /><Categories /></>
+                <ProtectedRoute>
+                  <AppBarComponent /><Categories />
+                </ProtectedRoute>
               } />
               <Route path="/tasks/:cat" element={
-                // <ProtectedRoute>
-                //   <Tasks />
-                // </ProtectedRoute>
-                <><AppBarComponent /><Tasks /></>
+                <ProtectedRoute>
+                  <AppBarComponent /><Tasks />
+                </ProtectedRoute>
               } />
               <Route path="*" element={<Navigate to="/register" />} />
             </Routes>
