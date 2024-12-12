@@ -108,8 +108,8 @@ function Tasks() {
   const addTask = async (e) => {
     e.preventDefault();
   
-    if (!files) {
-      toast.error("Please upload a file!");
+    if (!files || !taskName || !description || !notification || !taskSchedule) {
+      toast.error("Please fill the details!");
       return;
     }
   
@@ -120,6 +120,26 @@ function Tasks() {
     formData.append("taskSchedule", formatDateForOracle(new Date(taskSchedule)));
     formData.append("notification", notification);
     formData.append("categoryId", cat);
+
+    const formattedDate = formatDateForOracle(new Date(taskSchedule));
+    let currentSourceId = '';
+    console.log(notification)
+    if (notification === "email") {
+      currentSourceId = fields.EMAIL; // Assign directly to the local variable
+    } else if (notification === "phone") {
+      currentSourceId = fields.PHONE; // Assign directly to the local variable
+    }
+    else{
+      currentSourceId = "";
+    }
+    const notifications_formData = {
+      name: taskName,
+      description : description,
+      scheduler: formattedDate,
+      notification:notification,
+      source_id: currentSourceId,
+      file:files,
+    };
   
     try {
       const response = await axios.post(`${API_URL}/tasks`, formData, {
@@ -127,13 +147,28 @@ function Tasks() {
           "Content-Type": "multipart/form-data", // Required for file uploads
         },
       });
-  
+      
       if (response.status === 200 || response.status === 201) {
         toast.success("Task created successfully!");
         fetchTasks(); // Refresh tasks
         setTaskName("");
         setDescription("");
         setFiles(null);
+        setShowCreateModal(false);
+        if(response.status === 200 || response.status === 201){
+          toast.success("Task updated successfully!");
+          toast.success(`Task ${taskName} has been scheduled for a remainder at ${formattedDate} using ${notification} notification` );
+        }
+        const notification_response = await sendToNotificationQueue(notifications_formData);
+        if(notification_response.status === 200 || notification_response.status === 201){
+          if(notification === 'push' ){
+            toast.success(`Reminder for Task ${taskName}. Please Complete the Task ASAP`, { autoClose: false });
+          }
+          else{
+            toast.success("notification sent sucessfully");
+          }
+  
+        }
       }
     } catch (error) {
       toast.error("Failed to create task.");
@@ -269,7 +304,13 @@ function Tasks() {
       }
       const notification_response = await sendToNotificationQueue(formData);
       if(notification_response.status === 200 || notification_response.status === 201){
-        toast.success(`Reminder for Task ${taskName}. Please Complete the Task ASAP`, { autoClose: false });
+        if(notification === 'push' ){
+          toast.success(`Reminder for Task ${taskName}. Please Complete the Task ASAP`, { autoClose: false });
+        }
+        else{
+          toast.success("notification sent sucessfully");
+        }
+
       }
       // if(notification_response.status === 200 || notification_response.status === 201){
         
@@ -345,16 +386,28 @@ function Tasks() {
                   fullWidth
                 />
               </div>
+              <div>
+               <select id="notification-select" value={notification} onChange={(e) => setTaskNotification(e.target.value)} className="box" fullWidth > 
+               <option value="" disabled hidden>
+                  Select Notification Method
+                </option>
+                <option value="email">Email</option> 
+                <option value="phone">Phone</option> 
+                <option value="push">Push Notification</option> 
+              </select>
+              </div>
+              <div>
               <Button
       component="label"
       role={undefined}
       fullWidth
       sx={{
-        border: '1px solid black',
+        border: '1px solid #888',
         padding: '8px 16px',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom:'8px'
       }}
       tabIndex={-1}
       startIcon={<CloudUploadIcon />}
@@ -366,16 +419,7 @@ function Tasks() {
         multiple
       />
     </Button>
-              <div>
-               <select id="notification-select" value={notification} onChange={(e) => setTaskNotification(e.target.value)} className="box" fullWidth > 
-               <option value="" disabled hidden>
-                  Select Notification Method
-                </option>
-                <option value="email">Email</option> 
-                <option value="phone">Phone</option> 
-                <option value="push">Push Notification</option> 
-              </select>
-              </div>
+           </div>
               <Button onClick={addTask} variant="contained" color="primary">
                 Create Task
               </Button>
@@ -432,6 +476,30 @@ function Tasks() {
                 <option value="push">Push Notification</option> 
               </select>
               </div>
+              <div>
+              <Button
+      component="label"
+      role={undefined}
+      fullWidth
+      sx={{
+        border: '1px solid #888',
+        padding: '8px 16px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom:'8px'
+      }}
+      tabIndex={-1}
+      startIcon={<CloudUploadIcon />}
+    >
+      Upload files
+      <VisuallyHiddenInput
+        type="file"
+        onChange={handleFileChange}
+        multiple
+      />
+    </Button>
+    </div>
               <Button onClick={editBtnHandle} variant="contained" color="primary">
                 Edit Task
               </Button>
@@ -442,7 +510,7 @@ function Tasks() {
         {tasks.length === 0 ? (
           <h4>Your Task list is empty, please add tasks using the Create New Task button.</h4>
         ) : (
-          <Paper sx={{ height: 400, width: '100%' }}>
+          <Paper sx={{ height: 400, width: '98.5%', marginRight:'10px', marginLeft:'10px'}}>
       <DataGrid
         rows={tasks.map((task, index) => ({ id: index, ...task }))}
         columns={columns}
@@ -450,7 +518,23 @@ function Tasks() {
         rowsPerPageOptions={[5, 10, 20]}
         filterModel={filterModel}
         onFilterModelChange={(newFilterModel) => setFilterModel(newFilterModel)}
-        disableSelectionOnClick
+        sx={{
+          '& .MuiDataGrid-row': {
+            bgcolor: 'white', // Row background color
+            '&:hover': {
+              bgcolor: 'grey', // Row background color on hover
+            },
+            '&.Mui-selected': { bgcolor: 'white', // Row background color on click (selected)
+            },
+          },
+          '& .MuiDataGrid-columnHeaders': {
+            bgcolor: 'white', // Header background color
+            color: 'gold',  // Header text color
+          },
+          '& .MuiDataGrid-cell': {
+            color: 'black',  // Text color in cells
+          },
+        }}
       />
     </Paper>       )}
       </div>

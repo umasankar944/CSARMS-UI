@@ -211,25 +211,31 @@ import { DataGrid } from "@mui/x-data-grid";
           {categories.length === 0 ? (
             <h4>Your category list is empty. Please add categories.</h4>
           ) : (
-            <Paper sx={{ height: 400, width: '100%' }}>
+            <Paper sx={{ height: 400, width: '98.5%', marginRight:'10px', marginLeft:'10px'}}>
             <DataGrid
             rows={categories.map((category, index) => ({ id: index, ...category }))}
             columns={columns}
             pageSize={10}
             rowsPerPageOptions={[5, 10, 20]}
             disableSelectionOnClick
-            // sx={{
-            //   '& .MuiDataGrid-row': {
-            //     bgcolor: 'lightblue', // Row background color
-            //   },
-            //   '& .MuiDataGrid-columnHeaders': {
-            //     bgcolor: 'darkblue', // Header background color
-            //     color: 'white', // Header text color
-            //   },
-            //   '& .MuiDataGrid-cell': {
-            //     color: 'darkblue', // Text color in cells
-            //   },
-            // }}
+            sx={{
+              '& .MuiDataGrid-row': {
+                bgcolor: 'white', // Row background color
+                '&.Mui-selected': { bgcolor: 'white',},
+                '&:hover': {
+                  bgcolor: 'grey', // Row background color on hover
+                },
+                
+              },
+              '& .MuiDataGrid-columnHeaders': {
+                bgcolor: 'white', // Header background color
+                color: 'gold',  // Header text color
+              },
+              '& .MuiDataGrid-cell': {
+                color: 'black',  // Text color in cells
+              },
+            }}
+            
           />
           </Paper>
           )}
