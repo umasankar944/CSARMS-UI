@@ -211,7 +211,7 @@ import { DataGrid } from "@mui/x-data-grid";
           {categories.length === 0 ? (
             <h4>Your category list is empty. Please add categories.</h4>
           ) : (
-            <Paper sx={{ height: 400, width: '98.5%', marginRight:'10px', marginLeft:'10px'}}>
+            <Paper sx={{ height: 400, width: '98.5%', marginRight:'10px', marginLeft:'10px', bgcolor:'white'}}>
             <DataGrid
             rows={categories.map((category, index) => ({ id: index, ...category }))}
             columns={columns}

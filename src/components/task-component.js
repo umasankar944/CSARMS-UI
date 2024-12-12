@@ -510,7 +510,7 @@ function Tasks() {
         {tasks.length === 0 ? (
           <h4>Your Task list is empty, please add tasks using the Create New Task button.</h4>
         ) : (
-          <Paper sx={{ height: 400, width: '98.5%', marginRight:'10px', marginLeft:'10px'}}>
+          <Paper sx={{ height: 400, width: '98.5%', marginRight:'10px', marginLeft:'10px', bgcolor:'white'}}>
       <DataGrid
         rows={tasks.map((task, index) => ({ id: index, ...task }))}
         columns={columns}
